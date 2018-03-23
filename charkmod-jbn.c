@@ -1,5 +1,5 @@
 /**
- * File:	char-kmod-jbn.c
+ * File:	charkmod-jbn.c
  * Author:	Jorge Brandon Nunez
  * Class:	COP4600-SP18
  * Professor:	Dr. Gerber
@@ -13,7 +13,7 @@
 #include <linux/fs.h>		// File-system support.
 #include <linux/uaccess.h>	// User access copy function support.
 #define DEVICE_NAME "charkmod"	// Device name.
-#define CLASS_NAME  "chardev"	// Class name. This is a character device.
+#define MAX_SIZE    1024	// Max buffer size. 
 
 
 /**
@@ -27,7 +27,7 @@ MODULE_AUTHOR("Arati Banerjee, Huong Dang, and Jorge B. Nunez");
  * Important variables that store data and keep track of relevant information.
  */
 static int  major_number;
-static char data[1024] = {'\0'};
+static char data[MAX_SIZE];
 static int  data_size;
 
 
@@ -55,6 +55,8 @@ static struct file_operations fops =
 
 int init_module(void)
 {
+	int i;
+	
 	printk(KERN_INFO "charkmod: installing module.\n");
 	
 	// Allocate a major number for the device.
@@ -64,6 +66,11 @@ int init_module(void)
 		return major_number;
 	}
 	printk(KERN_INFO "charkmod: registered correctly with major number %d\n", major_number);
+	
+	// Initialize all data bytes to '\0'.
+	for (i = 0; i < MAX_SIZE; i++) {
+		data[i] = '\0';
+	}
 	
 	return 0;
 }
