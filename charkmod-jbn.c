@@ -68,6 +68,7 @@ int init_module(void)
 	printk(KERN_INFO "charkmod: registered correctly with major number %d\n", major_number);
 	
 	// Initialize all data bytes to '\0'.
+	data_size = 0;
 	for (i = 0; i < MAX_SIZE; i++) {
 		data[i] = '\0';
 	}
@@ -107,6 +108,20 @@ static ssize_t read(struct file *filep, char *buffer, size_t len, loff_t *offset
 
 static ssize_t write(struct file *filep, const char *buffer, size_t len, loff_t *offset)
 {
+	int i;
+	
 	printk(KERN_INFO "charkmod: something wrote to device.\n");
+	
+	if (len > MAX_SIZE) {
+		printk(KERN_INFO "charkmod: not enough space! Dropping what's left.\n");
+	}
+	
+	for (i = 0; i < MAX_SIZE; i++) {
+		if (i >= len)
+			data[i] = '\0';
+		else
+			data[i] = buffer[i];
+	}
+	
 	return len;
 }
