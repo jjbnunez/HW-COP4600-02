@@ -1,4 +1,4 @@
-obj-m += char-kmod.o
+obj-m += charkmod.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
