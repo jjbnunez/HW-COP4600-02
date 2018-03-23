@@ -108,5 +108,5 @@ static ssize_t read(struct file *filep, char *buffer, size_t len, loff_t *offset
 static ssize_t write(struct file *filep, const char *buffer, size_t len, loff_t *offset)
 {
 	printk(KERN_INFO "charkmod: something wrote to device.\n");
-	return 0;
+	return len;
 }
