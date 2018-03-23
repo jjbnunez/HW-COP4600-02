@@ -101,7 +101,38 @@ static int close(struct inode *inodep, struct file *filep)
 
 static ssize_t read(struct file *filep, char *buffer, size_t len, loff_t *offset)
 {
+	int i, j, limit, error;
+	char temp[MAX_SIZE];
+	
 	printk(KERN_INFO "charkmod: something read to device.\n");
+	
+	if (len < data_size) {
+		limit = len;
+		data_size -= len;
+	} else {
+		limit = data_size;
+		data_size -= data_size;
+	}
+	
+	error = copy_to_user(buffer, data, limit);
+	
+	if (error != 0) {
+		printk(KERN_INFO "charkmod: error copying to user!");
+		return -EFAULT;
+	}
+	
+	for (i = limit, j = 0; i < MAX_SIZE; i++, j++) {
+		temp[j] = data[i];
+	}
+	
+	for ( ; j < MAX_SIZE; j++) {
+		temp[j] = '\0';
+	}
+	
+	for (i = 0; i < MAX_SIZE; i++) {
+		data[i] = temp[i];
+	}
+	
 	return 0;
 }
 
@@ -116,11 +147,13 @@ static ssize_t write(struct file *filep, const char *buffer, size_t len, loff_t 
 		printk(KERN_INFO "charkmod: not enough space! Dropping what's left.\n");
 	}
 	
-	for (i = 0; i < MAX_SIZE; i++) {
+	for (i = 0, data_size = 0; i < MAX_SIZE; i++) {
 		if (i >= len)
 			data[i] = '\0';
-		else
+		else {
 			data[i] = buffer[i];
+			data_size++;
+		}
 	}
 	
 	return len;
