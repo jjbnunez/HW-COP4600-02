@@ -93,13 +93,13 @@ static int close(struct inode *inodep, struct file *filep)
 
 static ssize_t read(struct file *filep, char *buffer, size_t len, loff_t *offset)
 {
-	printk(KERN_INFO "charkmod: read attempted.\n");
-	return len;
+	printk(KERN_INFO "charkmod: something read to device.\n");
+	return 0;
 }
 
 
 static ssize_t write(struct file *filep, const char *buffer, size_t len, loff_t *offset)
 {
-	printk(KERN_INFO "charkmod: write attempted.\n");
-	return len;
+	printk(KERN_INFO "charkmod: something wrote to device.\n");
+	return 0;
 }
