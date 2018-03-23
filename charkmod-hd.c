@@ -99,29 +99,30 @@ static int close(struct inode *inodep, struct file *filep)
 static ssize_t read(struct file *filep, char *buffer, size_t len, loff_t *offset)
 {
 	int errorcount = 0;
-	int seen = 0; // # of bytes already seen by user 
+	int seen = 0; // # of bytes already seen by user
 
-  // If not enough data is available to service a read request, 
-  // the driver must respond with only the amount available (including 0 bytes)
+	// Run loop until we have serviced data request or we no longer
+	// have anything in our buffer 
 	while (seen < len && bufferLocation > 0)
-		// Send to user from our data buffer 
+	{
+		// Send to user from our data buffer
 		errorcount = copy_to_user(buffer[seen], data[bufferRead], 1);
     bufferLocation--;
     bufferRead++;
     seen++;
-    
+
     // If we go over max buffer
     if (bufferRead > MAX_BUFFER_SIZE)
       break;
   }
-  
-  if (error_count==0){           
+
+  if (error_count==0){
      printk(KERN_INFO "charkmod: Sent %d characters to the user\n", seen);
      return seen;  // clear the position to the start and return 0
   }
   else {
      printk(KERN_INFO "charkmod: Failed to send %d characters to the user\n", error_count);
-     return -EFAULT;              
+     return -EFAULT;
   }
 }
 
