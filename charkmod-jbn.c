@@ -27,6 +27,7 @@ MODULE_AUTHOR("Arati Banerjee, Huong Dang, and Jorge B. Nunez");
  * Important variables that store data and keep track of relevant information.
  */
 static int  major_number;
+static char temp[MAX_SIZE];
 static char data[MAX_SIZE];
 static int  data_size;
 
@@ -101,25 +102,29 @@ static int close(struct inode *inodep, struct file *filep)
 
 static ssize_t read(struct file *filep, char *buffer, size_t len, loff_t *offset)
 {
-	int i, j, limit, error;
-	char temp[MAX_SIZE];
+	int i, j;
+	int limit = MAX_SIZE, error = 0;
 	
-	printk(KERN_INFO "charkmod: something read to device.\n");
+	printk(KERN_INFO "charkmod: something read from device.\n");
+	
+	if (data_size == 0) {
+		printk(KERN_INFO "charkmod: tried to read empty buffer!\n");
+	}
 	
 	if (len < data_size) {
 		limit = len;
-		data_size -= len;
+		data_size = data_size - len;
 	} else {
 		limit = data_size;
-		data_size -= data_size;
+		data_size = 0;
 	}
 	
 	error = copy_to_user(buffer, data, limit);
-	
 	if (error != 0) {
-		printk(KERN_INFO "charkmod: error copying to user!");
+		printk(KERN_INFO "charkmod: error copying to user!\n");
 		return -EFAULT;
 	}
+	
 	
 	for (i = limit, j = 0; i < MAX_SIZE; i++, j++) {
 		temp[j] = data[i];
@@ -133,7 +138,7 @@ static ssize_t read(struct file *filep, char *buffer, size_t len, loff_t *offset
 		data[i] = temp[i];
 	}
 	
-	return 0;
+	return limit;
 }
 
 
